@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="kr">
+   <head>
+   <meta charset="UTF-8">
+   
+   
+     <title>Addressbook</title>
+     <link rel="shortcut icon" href="https://lh3.googleusercontent.com/sHMKgiee-dwZHonhBF-7b4e9y7eXXk1_yxIeVoxJ3jj0IpAPil66SeI6qTz88iuK_Q=w300" />
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" />
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css')}}"/>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+<script type="text/javascript">
+function layer_open(el){
+   var $el = $('#' + el);
+   $el.fadeIn();      //레이어의 id를 temp변수에 저장
+   var $elWidth = ~~($el.outerWidth()),
+      $elHeight = ~~($el.outerHeight()),
+        docWidth = $(document).width(),
+        docHeight = $(document).height();
+      //bg 클래스가 없으면 일반레이어로 실행한다.
+                       
+      // 화면의 중앙에 레이어를 띄운다.
+        if ($elHeight < docHeight || $elWidth < docWidth) {
+            $el.css({
+                marginTop: -$elHeight/4,
+                marginLeft: -$elWidth/2
+            })
+        } else {
+            $el.css({top: 0, left: 0});
+        }
+        $el.find('a.btn-layerClose').click(function(){
+           $el.fadeOut();
+                           // 닫기 버튼을 클릭하면 레이어가 닫힌다.
+            return false;
+        });
+        $el.find('a.btn-layerEdit').click(function(){
+           layer_open(el+'edit');
+                           
+            return false;
+        });
+        $el.find('a.btn-layerDetail').click(function(){
+           layer_open(el+'detail');
+                           
+            return false;
+        });
+}         
+window.onload=function heart(){
+  var obj=document.getElementsByName('favoriticon');
+  for(var i=0;i<obj.length;i++){
+    if(obj[i].title=="♡"){
+      obj[i].className="fa fa-heart-o";
+    }
+    else{
+      obj[i].className="fa fa-heart";
+    }
+  }
+}    
+</script>
+
+<style>
+a{margin-left:10px;}
+</style>
+
+</head>
+
+<body>
+
+<input type="checkbox" id="menu_state" checked>
+<nav>
+   <label for="menu_state"><i class="fa"></i></label>
+   <ul>
+      <li>
+         <a href="/">
+            <i class="fa fa-inbox"></i>
+            <span>Contacts ({{contact_count}})</span>
+         </a>
+      </li>
+      <li>
+         <a href="/favorite">
+            <i class="fa fa-heart"></i>
+            <span>Favorites</span>
+         </a>
+      </li>
+      <li data-content="3" class="unread">
+         <a href="/recent">
+            <i class="fa fa-paper-plane"></i>
+            <span>Recent</span>
+         </a>
+      </li>
+      <li data-content={{trashcount}} class="unread">
+         <a href="/trash">
+            <i class="fa fa-trash"></i>
+            <span>Trash</span>
+         </a>
+      </li>
+      <li>
+         <a href="/new" onclick="layer_open('add'); return false;">
+            <i class="fa fa-plus"></i>
+            <span>Plus</span></a>
+      </li> 
+
+   </ul>
+</nav>
+<main>
+   <header></header>
+
+    <style>
+body
+{
+background: url( https://static.pexels.com/photos/316466/pexels-photo-316466.jpeg)
+ no-repeat center center fixed; 
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+}</style>
+
+   <div>
+
+      <span>
+      <form class="search-bar" action="/search" method="POST">
+         <input type='text' name='string' class='input_text' placeholder='search'>
+         <a type="submit" class="fa fa-search" style = "color:#153d73; font-size: 20px"></a>
+         </form>
+</span>
+
+        <table class="contact_list">
+
+        <thead><p style="font-weight: bold; font-size: 17px; margin-left: 30px; margin-top: 20px">수신 기록</p>
+
+         <div id="add" class="pop-layer" >
+                        <div class="pop-container">
+                            <div class="pop-conts" >연락처 추가하기<br><br>
+
+                      <form action='/new'  method='POST'>
+                        <div>
+                          <label for='name'>이름 :</label>
+                          <input type='text' id='name' name='name'><br>
+                       </div>
+                       <div>
+                          <label for="number">전화번호 :</label>
+                          <input type="text" id="number" name="number"><br>
+                          </div>
+                        <div>
+                          <label for="email">E-mail :</label>
+                          <input type="email" id="email" name="email">
+                          </div>
+                          <div class="btn-r">
+                          <input type="submit" value="추가" style="display: inline-block; height: 25px; padding: 0 14px 0;
+                              border: 1px solid #304a8a; background-color: #3f5a9d; font-size: 13px; color: #fff; line-height: 25px;">  
+                            <a class="btn-layerClose">닫기</a>
+                            </div>
+                            </form>
+
+                  <!--// content-->
+                            </div>
+                        </div>
+                    </div>
+
+
+        </thead>
+
+        <tbody>
+         <tr>
+              <th scop="row" style="background: #f5f5f5">&nbsp;&nbsp;<i class="fa fa-envelope-o" style="color:#ff0033"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;보낸사람</th>
+              <td style="background:#f5f5f5;font-weight: bold">제목</td> </tr>
+          <tr>
+              <th scope="row">
+              <a href="#" onclick="toggle_object('mail1'); return false;" class= "fa fa-envelope-o" style = "color : #ff0033" id = "favoriticonmail3" ></a>
+              <a href = "#mail1" class="btn-example" onclick="layer_open('mail1'); return false;" > 노미나</a>
+              <div id="mail1" class="pop-layer" >
+                   <div class="pop-container">
+                         <div class="pop-conts">받은 메일<br><br>
+                               <!--content //-->
+                            <p class = "ctxt mb20">공지사항<br>오늘수업 휴강입니다.<br>
+                              </p>
+
+                               <div class="btn-r">
+                               <a href="#mail1detail" class="btn-layerDetail">연락처 보기</a>
+
+                               <div id="mail1detail" class="pop-layer" >
+                   			<div class="pop-container">
+                         <div class="pop-conts">연락처 상세보기<br><br>
+                               <!--content //-->
+                               {%- for i in ADDRESSBOOK %}
+                               {% if i.name=='노미나' %}
+                            <p class = "ctxt mb20">{{i.name}}<br>{{i.number}}<br>{{i.email}}<br>
+                              </p>
+                              {% endif %}
+                              {%- endfor %}
+						<a href="#" class="btn-layerClose">닫기</a>
+						</div></div></div>
+
+                                   <a href="#" class="btn-layerClose">닫기</a>
+                               </div>
+                               <!--// content-->
+                           </div>
+                       </div>
+                </div>
+              </th>
+              <td>공지사항</td>
+          </tr>
+
+          <tr>
+              <th scope="row">
+              <a href="#" onclick="toggle_object('mail2'); return false;" class= "fa fa-envelope-o" style = "color : #ff0033" id = "favoriticonmail3" ></a>
+              <a href = "#mail2" class="btn-example" onclick="layer_open('mail2'); return false;" > 한양대학교</a>
+              <div id="mail2" class="pop-layer" >
+                   <div class="pop-container">
+                         <div class="pop-conts">받은 메일<br><br>
+                               <!--content //-->
+                            <p class = "ctxt mb20">한양대학교 <공지><br>이번학기 성적우수장학생으로 선정되셨습니다.<br>
+                              </p>
+
+                               <div class="btn-r">
+                               <a href="#mail3detail" class="btn-layerDetail">연락처 보기</a>
+
+                               <div id="mail2detail" class="pop-layer" >
+                        <div class="pop-container">
+                         <div class="pop-conts">연락처 상세보기<br><br>
+                               <!--content //-->
+                               {%- for i in ADDRESSBOOK %}
+                               {% if i.name=='한양대학교' %}
+                            <p class = "ctxt mb20">{{i.name}}<br>{{i.number}}<br>{{i.email}}<br>
+                              </p>
+                              {% endif %}
+                              {%- endfor %}
+            <a href="#" class="btn-layerClose">닫기</a>
+            </div></div></div>
+
+                                   <a href="#" class="btn-layerClose">닫기</a>
+                               </div>
+                               <!--// content-->
+                           </div>
+                       </div>
+                </div>
+              </th>
+              <td>한양대학교 <공지></td>
+          </tr>
+
+          <tr>
+              <th scope="row">
+              <a href="#" onclick="toggle_object('mail3'); return false;" class= "fa fa-envelope-o" style = "color : #ff0033" id = "favoriticonmail3" ></a>
+              <a href = "#mail3" class="btn-example" onclick="layer_open('mail3'); return false;" >유인경</a>
+              <div id="mail3" class="pop-layer" >
+                   <div class="pop-container">
+                         <div class="pop-conts">받은 메일<br><br>
+                               <!--content //-->
+                            <p class = "ctxt mb20">학생<br>과제는 다했나<br>
+                              </p>
+
+                               <div class="btn-r">
+                               <a href="#mail3detail" class="btn-layerDetail">연락처 보기</a>
+
+                               <div id="mail3detail" class="pop-layer" >
+                        <div class="pop-container">
+                         <div class="pop-conts">연락처 상세보기<br><br>
+                               <!--content //-->
+                               {%- for i in ADDRESSBOOK %}
+                               {% if i.name=='유인경' %}
+                            <p class = "ctxt mb20">{{i.name}}<br>{{i.number}}<br>{{i.email}}<br>
+                              </p>
+                              {% endif %}
+                              {%- endfor %}
+            <a href="#" class="btn-layerClose">닫기</a>
+            </div></div></div>
+
+                                   <a href="#" class="btn-layerClose">닫기</a>
+                               </div>
+                               <!--// content-->
+                           </div>
+                       </div>
+                </div>
+              </th>
+              <td>학생</td>
+          </tr>
+       </tbody>
+
+      </table>
+
+      <table class="contact_list">
+
+      <thead><p style="font-weight: bold; font-size: 17px; margin-left: 30px; margin-top: 20px">발신기록
+      <a href = "#sendmail" class="fa fa-mail-forward" style="color:#999999 ;font-size:15px;" onclick="layer_open('sendmail'); return false;" > 메일보내기</a>
+        <div id="sendmail" class="pop-layer" >
+                        <div class="pop-container">
+                            <div class="pop-conts" >메일 쓰기<br><br>
+
+                      <form action='/sendmail'  method='POST'>
+                        <div>
+                          <label for='name'>받는이 :</label>
+                          <input type='text' id='name' name='name'><br>
+                       </div>
+                       <div>
+                          <label for="number">제목 :</label>
+                          <input type="text" id="title" name="title"><br>
+                          </div>
+                        <div>
+                          <label for="email">내용 :</label>
+                          <input type="text" id="content" name="content">
+                          </div>
+                          <div class="btn-r">
+                          <input type="submit" value="보내기" style="display: inline-block; height: 25px; padding: 0 14px 0;
+                              border: 1px solid #304a8a; background-color: #3f5a9d; font-size: 13px; color: #fff; line-height: 25px;">  
+                            <a class="btn-layerClose">닫기</a>
+                            </div>
+                            </form>
+
+                  <!--// content-->
+                            </div>
+                        </div>
+         </div> </p>
+</thead>
+
+        <tbody>
+         <tr>
+              <th scop="row" style="background: #f5f5f5">&nbsp;&nbsp;<i class="fa fa-envelope-o" style="color:#ff0033"></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;받는사람</th>
+              <td style="background:#f5f5f5;font-weight: bold">제목</td> </tr>
+          <tr>
+          {%- for j in RECENT %}
+              <th scope="row">
+              <a href="#" onclick="toggle_object('smail{{j.id}}'); return false;" class= "fa fa-envelope-o" style = "color : #ff0033" id = "favoriticonsmail{{j.id}}" ></a>
+              <a href = "#smail{{j.id}}" class="btn-example" onclick="layer_open('smail{{j.id}}'); return false;" >{{j.name}}</a>
+              <div id="smail{{j.id}}" class="pop-layer" >
+                   <div class="pop-container">
+                         <div class="pop-conts">보낸 메일<br><br>
+                               <!--content //-->
+                            <p class = "ctxt mb20">{{j.title}}<br> {{j.content}}<br>
+                              </p>
+
+                               <div class="btn-r">
+                               <a href="/recent/delete/{{j.id}}">삭제하기</a> 
+                               <a href="#smail{{j.id}}detail" class="btn-layerDetail">연락처 보기</a>
+
+                               <div id="smail{{j.id}}detail" class="pop-layer" >
+                        <div class="pop-container">
+                         <div class="pop-conts">연락처 상세보기<br><br>
+                               <!--content //-->
+                               {%- for i in ADDRESSBOOK %}
+                               {% if i.name==j.name %}
+                            <p class = "ctxt mb20">{{i.name}}<br>{{i.number}}<br>{{i.email}}<br>
+                              </p>
+                              {% endif %}
+                              {%- endfor %}
+            <a href="#" class="btn-layerClose">닫기</a>
+            </div></div></div>
+
+                                   <a href="#" class="btn-layerClose">닫기</a>
+                               </div>
+                               <!--// content-->
+                           </div>
+                       </div>
+                </div>
+              </th>
+              <td>{{j.title}}</td>
+              </tr>
+              {%- endfor %}
+       </tbody>
+
+      </table>
+
+
+   </div>
+
+</main>
+</body>
+</html>
